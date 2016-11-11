@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]
+then
+    echo "Usage is: $0 <shorthand> \"<title>\"";
+    echo "For example: trello misc 'Do this and that'";
+	echo -e "\033[1m"; #bold header row
+	echo "| Shorthand	| Board 	| List";
+	echo -ne "\033[0m";
+	echo "-------------------------------------------"; #separate header row from table
+	echo "| misc 		| Someday	| Misc";
+	echo "| in  		| INbasket 	| APIed in?";
+	echo "| tabs		| INbasket 	| Tabs";
+	echo "| notes 	| NotesA	| Reference";
+	echo "| action 	| Actionable	| Daily";
+#	echo "| notes 		| NotesA	| Reference";
+    exit 1
+fi
+
+case "$1" in
+'in')
+  listid='57cddb24b4f255652ea09165';;
+'tabs')
+  listid='57cb664b720ab94e69f2cba0';;
+'misc')
+  listid='57cf7bedc647e55bf530fd9f';;
+'notes')
+  listid='57cb8f9fdeba4fcf64ce6fff';;
+'action')
+  listid='57cc89a9b7089c9a2566a3a6';;
+*)
+  echo 'Bad shorthand, see trello -?';
+  exit 0;;
+esac
+
+# replace spaces in name with + (or else http call will fail)
+name=$2
+safe_name=$name #(echo $name|tr ' ' '+'|sed s/\&/%26/g)
+
+data="name="$safe_name"&due=null&idList="$listid"&token=$(cat trello.token)&key=dde1edb7e72a3c12ed94e0fd6bbcba05"
+
+# The following curl will throw away response json, and display just status code (200 == two thumbs up!)
+
+curl -s -o /dev/null -w "%{http_code}\\n" --data "$data" https://api.trello.com/1/cards
+
