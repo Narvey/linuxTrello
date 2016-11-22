@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ $# -ne 2 ]
+if (( "$#" < 2 || "$#" > 3 ))
 then
-    echo "Usage is: $0 <shorthand> \"<title>\"";
-    echo "For example: trello misc 'Do this and that'";
+    echo "Usage is: $0 <shorthand> \"<title>\" [\"<desc>\"]";
+    echo "For example: trello misc 'Do this and that' \"do it tomorrow please\"";
 	echo -e "\033[1m"; #bold header row
 	echo "| Shorthand	| Board 	| List";
 	echo -ne "\033[0m";
@@ -37,7 +37,10 @@ esac
 name=$2
 safe_name=$name #(echo $name|tr ' ' '+'|sed s/\&/%26/g)
 
-data="name="$safe_name"&due=null&idList="$listid"&token=$(cat trello.token)&key=dde1edb7e72a3c12ed94e0fd6bbcba05"
+data="name=$safe_name&due=null&idList="$listid"&token=$(cat trello.token)&key=dde1edb7e72a3c12ed94e0fd6bbcba05"
+if (( "$#" == 3 )); then
+    data="$data&desc=$3";
+fi
 
 # The following curl will throw away response json, and display just status code (200 == two thumbs up!)
 
