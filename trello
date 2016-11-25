@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if (( "$#" < 2 || "$#" > 3 ))
 then
     echo "Usage is: $0 <shorthand> \"<title>\" [\"<desc>\"]";
@@ -35,14 +34,14 @@ esac
 
 # replace spaces in name with + (or else http call will fail)
 name=$2
-safe_name=$name #(echo $name|tr ' ' '+'|sed s/\&/%26/g)
+safe_name=$(echo $name|tr ' ' '+'|sed s/\&/%26/g)
 
-data="name=$safe_name&due=null&idList="$listid"&token=$(cat trello.token)&key=dde1edb7e72a3c12ed94e0fd6bbcba05"
+token=$(cat "$(dirname $(readlink -f $0))/trello.token")
+data="name=$safe_name&due=null&idList=$listid&token=$token&key=dde1edb7e72a3c12ed94e0fd6bbcba05"
 if (( "$#" == 3 )); then
     data="$data&desc=$3";
 fi
 
 # The following curl will throw away response json, and display just status code (200 == two thumbs up!)
-
 curl -s -o /dev/null -w "%{http_code}\\n" --data "$data" https://api.trello.com/1/cards
 
